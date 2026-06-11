@@ -22,6 +22,8 @@ Para resolver o problema, a diretoria decidiu desenvolver um dashboard inteligen
 A equipe de Ciência de Dados recebeu a seguinte base simplificada de entregas:
 <img width="642" height="447" alt="image" src="https://github.com/user-attachments/assets/6c55d0bb-263c-4ca8-b874-38df37b29a75" />
 
+- acompanhar tendências operacionais; -- <b>Essa pichorra vai ter que ser estudada</b>
+
 QUESTÃO:
 
 Imagine que seu squad foi contratado por esta empresa. Vocês devem desenvolver efetivamente o dashboard proposto, criando uma solução funcional que permita aos gestores visualizar e analisar os dados logísticos apresentados.
