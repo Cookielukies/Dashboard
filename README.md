@@ -34,3 +34,5 @@ I. como os atrasos foram identificados?
 II. como os cálculos foram realizados?
 III. quais critérios o grupo utilizou para organizar e priorizar as informações?
 *
+<img width="1267" height="813" alt="image" src="https://github.com/user-attachments/assets/066615d6-8d0a-431c-8b81-b31c24df1128" />
+Fazer igual o seguinte exemplo.
