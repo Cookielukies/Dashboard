@@ -1,6 +1,31 @@
 # Dashboard
 Projeto nosso Cyberkayzen de Dashboard
 
+AMT01: Visualização de dados - dashboards
+
+Tipo: resposta construída - elaboração de dashboard
+
+Nível: difícil
+
+
+ENUNCIADO:
+
+Uma empresa nacional de logística enfrenta dificuldades para monitorar atrasos em entregas realizadas em diferentes regiões do país. Atualmente, os gestores dependem de planilhas extensas e relatórios manuais, o que dificulta:
+- identificar rapidamente transportadoras com maior índice de atraso;
+- visualizar regiões críticas;
+- priorizar entregas mais problemáticas;
+- acompanhar tendências operacionais;
+- tomar decisões em tempo real.
+
+Para resolver o problema, a diretoria decidiu desenvolver um dashboard inteligente de monitoramento logístico, capaz de consolidar dados operacionais e apoiar análises estratégicas em tempo real.
+
+A equipe de Ciência de Dados recebeu a seguinte base simplificada de entregas:
+<img width="642" height="447" alt="image" src="https://github.com/user-attachments/assets/6c55d0bb-263c-4ca8-b874-38df37b29a75" />
+
+QUESTÃO:
+
+Imagine que seu squad foi contratado por esta empresa. Vocês devem desenvolver efetivamente o dashboard proposto, criando uma solução funcional que permita aos gestores visualizar e analisar os dados logísticos apresentados.
+
 A ENTREGA DEVE CONTER:
 1. Dashboard funcional
 O grupo deverá construir um dashboard digital funcional em uma plataforma de sua escolha. Exemplos de plataformas possíveis: Power BI; Looker Studio; Tableau; Streamlit; sites em HTML/CSS/JavaScript; aplicações web; outras ferramentas equivalentes.
