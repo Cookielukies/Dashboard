@@ -9,14 +9,14 @@ atraso critico,entregas de atraso medio e entregas no prazo (sempre mostrando a 
 mais visual qual região está mais atrasada em relação as outras regiões (lembrar de fazer o mapa mais detalhado 
 devido ao atual estar muito quadriculado)
 
-4- por banco de dados para suportar o simulador de entregas para criar exemplos de entregas e ficar salvo
+4- por banco de dados para suportar o simulador de entregas (jp) para criar exemplos de entregas e ficar salvo
 
-5- por botões de remover entrega e de alerta de entrega critica
+5- por botões de remover entrega e de alerta de entrega critica (jp)
 
-6- por barra de pesquisa que busque por ID ou transportadora
+6- por barra de pesquisa que busque por ID ou transportadora (jp)
 
 7- por um grafico de desempenho das transportadoras com as suas entregas totais e suas entregas em atraso mostrando a
-porcentagem ou numero de entregas/atrasos
+porcentagem ou numero de entregas/atrasos (jp)
 
 8- por um menu para ir a segunda tela onde fica a tabela das entregas assim deixando a dashboard menos extença tendo que
 descer o scroll do mouse para baixo e ficando assim mais organizada separando tabela dos graficos
