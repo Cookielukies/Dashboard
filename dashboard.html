@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor Logístico — CyberKayzen</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f3; color: #1a1a18; min-height: 100vh; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-dot { width: 12px; height: 12px; border-radius: 50%; background: #E24B4A; }
+  .brand-title { font-size: 20px; font-weight: 600; color: #1a1a18; }
+  .brand-sub { font-size: 13px; color: #888780; margin-top: 2px; }
+  .update-badge { font-size: 12px; background: #EAF3DE; color: #3B6D11; padding: 4px 12px; border-radius: 20px; }
+
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 1.5rem; }
+  .filters label { font-size: 13px; color: #888780; }
+  .filters select { font-size: 13px; padding: 6px 12px; border-radius: 8px; border: 1px solid #d3d1c7; background: #fff; color: #1a1a18; cursor: pointer; outline: none; }
+  .filters select:focus { border-color: #378ADD; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .kpi { background: #fff; border: 1px solid #e8e6df; border-radius: 10px; padding: 16px; }
+  .kpi-label { font-size: 11px; color: #888780; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .06em; }
+  .kpi-value { font-size: 28px; font-weight: 600; color: #1a1a18; line-height: 1; }
+  .kpi-sub { font-size: 12px; color: #888780; margin-top: 5px; }
+  .kpi.danger .kpi-value { color: #E24B4A; }
+  .kpi.warn .kpi-value { color: #BA7517; }
+  .kpi.ok .kpi-value { color: #3B6D11; }
+
+  .row { display: grid; gap: 16px; margin-bottom: 16px; }
+  .row-2 { grid-template-columns: 1.3fr 0.7fr; }
+  .row-eq { grid-template-columns: 1fr 1fr; }
+
+  .card { background: #fff; border: 1px solid #e8e6df; border-radius: 12px; padding: 1.25rem; }
+  .card-title { font-size: 11px; font-weight: 600; color: #888780; margin-bottom: 16px; text-transform: uppercase; letter-spacing: .07em; display: flex; align-items: center; gap: 6px; }
+  .chart-wrap { position: relative; width: 100%; }
+
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+  .badge.red { background: #FCEBEB; color: #A32D2D; }
+  .badge.amber { background: #FAEEDA; color: #854F0B; }
+  .badge.green { background: #EAF3DE; color: #3B6D11; }
+
+  .alert-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 8px; background: #FCEBEB; margin-bottom: 8px; }
+  .alert-icon { color: #A32D2D; font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+  .alert-text { font-size: 13px; font-weight: 600; color: #A32D2D; }
+  .alert-sub { font-size: 12px; color: #791F1F; margin-top: 2px; }
+
+  .rank-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f1efe8; }
+  .rank-item:last-child { border-bottom: none; }
+  .rank-num { font-size: 11px; font-weight: 600; color: #888780; width: 20px; text-align: right; flex-shrink: 0; }
+  .rank-name { font-size: 13px; font-weight: 500; color: #1a1a18; }
+  .rank-bar-wrap { flex: 1; }
+  .rank-bar { height: 5px; border-radius: 3px; }
+  .rank-val { font-size: 14px; font-weight: 600; flex-shrink: 0; }
+  .rank-sub { font-size: 11px; color: #888780; flex-shrink: 0; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #888780; font-weight: 600; padding: 8px 10px; border-bottom: 1px solid #e8e6df; text-align: left; }
+  td { padding: 8px 10px; border-bottom: 1px solid #f1efe8; color: #1a1a18; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafaf8; }
+
+  @media (max-width: 650px) {
+    .row-2, .row-eq { grid-template-columns: 1fr; }
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="top-bar">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <div>
+        <div class="brand-title">Monitor Logístico</div>
+        <div class="brand-sub">Análise de entregas em tempo real · CyberKayzen</div>
+      </div>
+    </div>
+    <span class="update-badge">Dados: Mar 2024</span>
+  </div>
+
+  <div class="filters">
+    <label>Filtrar:</label>
+    <select id="fRegiao" onchange="render()">
+      <option value="">Todas as regiões</option>
+      <option value="Norte">Norte</option>
+      <option value="Nordeste">Nordeste</option>
+      <option value="Centro-Oeste">Centro-Oeste</option>
+      <option value="Sudeste">Sudeste</option>
+      <option value="Sul">Sul</option>
+    </select>
+    <select id="fTransp" onchange="render()">
+      <option value="">Todas as transportadoras</option>
+      <option value="TransRápido">TransRápido</option>
+      <option value="LogFast">LogFast</option>
+      <option value="EntregaJá">EntregaJá</option>
+      <option value="VeloLog">VeloLog</option>
+      <option value="RoteiroExpress">RoteiroExpress</option>
+    </select>
+    <select id="fStatus" onchange="render()">
+      <option value="">Todos os status</option>
+      <option value="Atrasada">Atrasadas</option>
+      <option value="No prazo">No prazo</option>
+      <option value="Crítica">Críticas</option>
+    </select>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="row row-2">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-bar"></i> Atrasos por transportadora (%)</div>
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="cTransp" role="img" aria-label="Taxa de atraso por transportadora em porcentagem">Taxa de atraso por transportadora</canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-map-pin"></i> Atrasos por região</div>
+      <div class="chart-wrap" style="height:220px">
+        <canvas id="cRegiao" role="img" aria-label="Distribuição de entregas atrasadas por região">Distribuição por região</canvas>
+      </div>
+      <div id="legendaRegiao" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;font-size:11px;color:#888780"></div>
+    </div>
+  </div>
+
+  <div class="row row-eq">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-alert-triangle"></i> Alertas críticos (≥6 dias)</div>
+      <div id="alertas"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-trophy"></i> Ranking — atraso médio por transportadora</div>
+      <div id="ranking"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:0">
+    <div class="card-title"><i class="ti ti-table"></i> Detalhamento de entregas (ordenado por atraso)</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Transportadora</th>
+            <th>Região</th>
+            <th>Prazo previsto</th>
+            <th>Entrega real</th>
+            <th>Atraso</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyEntregas"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const RAW = [
+  {id:"E001",transp:"TransRápido",regiao:"Sudeste",prazo:"2024-03-10",real:"2024-03-13",valor:850},
+  {id:"E002",transp:"LogFast",regiao:"Norte",prazo:"2024-03-08",real:"2024-03-08",valor:1200},
+  {id:"E003",transp:"EntregaJá",regiao:"Nordeste",prazo:"2024-03-12",real:"2024-03-18",valor:430},
+  {id:"E004",transp:"VeloLog",regiao:"Sul",prazo:"2024-03-07",real:"2024-03-07",valor:970},
+  {id:"E005",transp:"TransRápido",regiao:"Centro-Oeste",prazo:"2024-03-15",real:"2024-03-22",valor:560},
+  {id:"E006",transp:"LogFast",regiao:"Sudeste",prazo:"2024-03-11",real:"2024-03-14",valor:780},
+  {id:"E007",transp:"EntregaJá",regiao:"Norte",prazo:"2024-03-09",real:"2024-03-09",valor:340},
+  {id:"E008",transp:"VeloLog",regiao:"Nordeste",prazo:"2024-03-14",real:"2024-03-20",valor:1100},
+  {id:"E009",transp:"RoteiroExpress",regiao:"Sul",prazo:"2024-03-06",real:"2024-03-10",valor:620},
+  {id:"E010",transp:"TransRápido",regiao:"Norte",prazo:"2024-03-13",real:"2024-03-21",valor:890},
+  {id:"E011",transp:"LogFast",regiao:"Nordeste",prazo:"2024-03-10",real:"2024-03-10",valor:450},
+  {id:"E012",transp:"EntregaJá",regiao:"Sul",prazo:"2024-03-08",real:"2024-03-12",valor:730},
+  {id:"E013",transp:"VeloLog",regiao:"Centro-Oeste",prazo:"2024-03-16",real:"2024-03-16",valor:510},
+  {id:"E014",transp:"RoteiroExpress",regiao:"Sudeste",prazo:"2024-03-12",real:"2024-03-17",valor:960},
+  {id:"E015",transp:"TransRápido",regiao:"Nordeste",prazo:"2024-03-09",real:"2024-03-17",valor:670},
+  {id:"E016",transp:"LogFast",regiao:"Sul",prazo:"2024-03-11",real:"2024-03-11",valor:820},
+  {id:"E017",transp:"EntregaJá",regiao:"Centro-Oeste",prazo:"2024-03-15",real:"2024-03-23",valor:390},
+  {id:"E018",transp:"VeloLog",regiao:"Sudeste",prazo:"2024-03-13",real:"2024-03-13",valor:1050},
+  {id:"E019",transp:"RoteiroExpress",regiao:"Norte",prazo:"2024-03-07",real:"2024-03-14",valor:580},
+  {id:"E020",transp:"TransRápido",regiao:"Sul",prazo:"2024-03-10",real:"2024-03-10",valor:740},
+  {id:"E021",transp:"LogFast",regiao:"Centro-Oeste",prazo:"2024-03-14",real:"2024-03-19",valor:660},
+  {id:"E022",transp:"EntregaJá",regiao:"Sudeste",prazo:"2024-03-12",real:"2024-03-12",valor:930},
+  {id:"E023",transp:"VeloLog",regiao:"Norte",prazo:"2024-03-08",real:"2024-03-15",valor:470},
+  {id:"E024",transp:"RoteiroExpress",regiao:"Nordeste",prazo:"2024-03-11",real:"2024-03-16",valor:810},
+  {id:"E025",transp:"TransRápido",regiao:"Centro-Oeste",prazo:"2024-03-16",real:"2024-03-24",valor:720},
+];
+
+function diffDays(a, b) {
+  return Math.round((new Date(b) - new Date(a)) / (1000*60*60*24));
+}
+function classify(d) {
+  if (d <= 0) return "No prazo";
+  if (d >= 6) return "Crítica";
+  return "Atrasada";
+}
+
+const DATA = RAW.map(r => {
+  const atraso = Math.max(0, diffDays(r.prazo, r.real));
+  return { ...r, atraso, status: classify(diffDays(r.prazo, r.real)) };
+});
+
+let chartT = null, chartR = null;
+
+function filtered() {
+  const r = document.getElementById('fRegiao').value;
+  const t = document.getElementById('fTransp').value;
+  const s = document.getElementById('fStatus').value;
+  return DATA.filter(d => {
+    if (r && d.regiao !== r) return false;
+    if (t && d.transp !== t) return false;
+    if (s && d.status !== s) return false;
+    return true;
+  });
+}
+
+function render() {
+  const d = filtered();
+  renderKPIs(d);
+  renderTranspChart(d);
+  renderRegiaoChart(d);
+  renderAlertas(d);
+  renderRanking(d);
+  renderTabela(d);
+}
+
+function renderKPIs(d) {
+  const total = d.length;
+  const atrasadas = d.filter(x => x.status !== "No prazo").length;
+  const criticas = d.filter(x => x.status === "Crítica").length;
+  const pct = total ? Math.round(atrasadas / total * 100) : 0;
+  const atrasadasComDias = d.filter(x => x.atraso > 0);
+  const mediaAtraso = atrasadasComDias.length
+    ? (atrasadasComDias.reduce((a, b) => a + b.atraso, 0) / atrasadasComDias.length).toFixed(1)
+    : 0;
+  document.getElementById('kpis').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Total entregas</div><div class="kpi-value">${total}</div><div class="kpi-sub">no período</div></div>
+    <div class="kpi danger"><div class="kpi-label">Atrasadas</div><div class="kpi-value">${atrasadas}</div><div class="kpi-sub">${pct}% do total</div></div>
+    <div class="kpi danger"><div class="kpi-label">Críticas (≥6d)</div><div class="kpi-value">${criticas}</div><div class="kpi-sub">atenção imediata</div></div>
+    <div class="kpi warn"><div class="kpi-label">Atraso médio</div><div class="kpi-value">${mediaAtraso}d</div><div class="kpi-sub">entregas atrasadas</div></div>
+    <div class="kpi ok"><div class="kpi-label">No prazo</div><div class="kpi-value">${total - atrasadas}</div><div class="kpi-sub">${100 - pct}% do total</div></div>
+  `;
+}
+
+function renderTranspChart(d) {
+  const names = ["TransRápido","LogFast","EntregaJá","VeloLog","RoteiroExpress"];
+  const labels = ["TransRápido","LogFast","EntregaJá","VeloLog","Roteiro"];
+  const rates = names.map(t => {
+    const sub = d.filter(x => x.transp === t);
+    if (!sub.length) return 0;
+    return Math.round(sub.filter(x => x.status !== "No prazo").length / sub.length * 100);
+  });
+  const colors = rates.map(r => r >= 70 ? "#E24B4A" : r >= 40 ? "#BA7517" : "#639922");
+  if (chartT) chartT.destroy();
+  chartT = new Chart(document.getElementById('cTransp'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label: '% atraso', data: rates, backgroundColor: colors, borderRadius: 4, borderSkipped: false }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.raw}% de atraso` } } },
+      scales: {
+        y: { max: 100, grid: { color: 'rgba(0,0,0,.06)' }, ticks: { callback: v => v + '%', font: { size: 11 } } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+function renderRegiaoChart(d) {
+  const regioes = ["Norte","Nordeste","Centro-Oeste","Sudeste","Sul"];
+  const counts = regioes.map(r => d.filter(x => x.regiao === r && x.status !== "No prazo").length);
+  const palette = ["#378ADD","#E24B4A","#BA7517","#1D9E75","#7F77DD"];
+  if (chartR) chartR.destroy();
+  chartR = new Chart(document.getElementById('cRegiao'), {
+    type: 'doughnut',
+    data: {
+      labels: regioes,
+      datasets: [{ data: counts, backgroundColor: palette, borderWidth: 3, borderColor: '#fff', hoverBorderColor: '#fff' }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '60%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => `${c.label}: ${c.raw} atrasos` } }
+      }
+    }
+  });
+  const total = counts.reduce((a, b) => a + b, 0);
+  document.getElementById('legendaRegiao').innerHTML = regioes.map((r, i) => `
+    <span style="display:flex;align-items:center;gap:4px">
+      <span style="width:10px;height:10px;border-radius:2px;background:${palette[i]};flex-shrink:0"></span>
+      ${r} (${counts[i]})
+    </span>
+  `).join('');
+}
+
+function renderAlertas(d) {
+  const criticas = d.filter(x => x.status === "Crítica").sort((a, b) => b.atraso - a.atraso).slice(0, 5);
+  const el = document.getElementById('alertas');
+  if (!criticas.length) {
+    el.innerHTML = '<div style="font-size:13px;color:#888780;padding:8px 0">Nenhuma entrega crítica no filtro atual.</div>';
+    return;
+  }
+  el.innerHTML = criticas.map(c => `
+    <div class="alert-row">
+      <i class="ti ti-alert-circle alert-icon"></i>
+      <div>
+        <div class="alert-text">${c.id} — ${c.transp}</div>
+        <div class="alert-sub">${c.regiao} · ${c.atraso} dias de atraso · R$ ${c.valor.toLocaleString('pt-BR')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderRanking(d) {
+  const names = ["TransRápido","LogFast","EntregaJá","VeloLog","RoteiroExpress"];
+  const ranked = names.map(t => {
+    const sub = d.filter(x => x.transp === t && x.atraso > 0);
+    const all = d.filter(x => x.transp === t);
+    const media = sub.length ? +(sub.reduce((a, b) => a + b.atraso, 0) / sub.length).toFixed(1) : 0;
+    return { t, media, total: all.length, atrasadas: all.filter(x => x.status !== "No prazo").length };
+  }).sort((a, b) => b.media - a.media);
+  const maxMedia = Math.max(...ranked.map(x => x.media), 1);
+  document.getElementById('ranking').innerHTML = ranked.map((r, i) => {
+    const color = r.media >= 5 ? "#E24B4A" : r.media >= 3 ? "#BA7517" : "#639922";
+    return `
+      <div class="rank-item">
+        <span class="rank-num">${i + 1}</span>
+        <div class="rank-bar-wrap">
+          <div class="rank-name">${r.t}</div>
+          <div style="margin-top:4px">
+            <div class="rank-bar" style="width:${Math.round(r.media / maxMedia * 100)}%;background:${color}"></div>
+          </div>
+        </div>
+        <span class="rank-val" style="color:${color}">${r.media}d</span>
+        <span class="rank-sub">${r.atrasadas}/${r.total}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderTabela(d) {
+  const sorted = [...d].sort((a, b) => b.atraso - a.atraso);
+  document.getElementById('tbodyEntregas').innerHTML = sorted.map(r => {
+    const bc = r.status === "Crítica" ? "red" : r.status === "Atrasada" ? "amber" : "green";
+    const atrasoColor = r.atraso >= 6 ? "#A32D2D" : r.atraso > 0 ? "#854F0B" : "#3B6D11";
+    return `<tr>
+      <td style="font-weight:600">${r.id}</td>
+      <td>${r.transp}</td>
+      <td>${r.regiao}</td>
+      <td>${r.prazo}</td>
+      <td>${r.real}</td>
+      <td style="font-weight:600;color:${atrasoColor}">${r.atraso > 0 ? '+' + r.atraso + 'd' : '—'}</td>
+      <td><span class="badge ${bc}">${r.status}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+render();
+</script>
+</body>
+</html>
