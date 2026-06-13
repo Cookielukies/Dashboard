@@ -18,5 +18,5 @@ devido ao atual estar muito quadriculado)
 7- por um grafico de desempenho das transportadoras com as suas entregas totais e suas entregas em atraso mostrando a
 porcentagem ou numero de entregas/atrasos (jp)
 
-8- por um menu para ir a segunda tela onde fica a tabela das entregas assim deixando a dashboard menos extença tendo que
+8- por um menu para ir a segunda tela onde fica a tabela das entregas assim deixando a dashboard menos extensa tendo que
 descer o scroll do mouse para baixo e ficando assim mais organizada separando tabela dos graficos
